@@ -1,0 +1,115 @@
+1.int ntyStartupClient(void);
+描述：启动SDK，在执行该函数前需要设置以下函数：
+ntySetSendSuccessCallback（发送成功）
+ntySetSendFailedCallback（发送超时）
+ntySetProxyCallback（接收数据）
+ntySetBindResult（App与Device绑定返回结果）
+ntySetUnBindResult（App与Device解绑返回结果）
+ntySetProxyDisconnect（断开连接）
+ntySetProxyReconnect（断开连接后自动连接成功的返回结构）
+参数：NULL
+返回值：0 执行成功，-1 执行失败
+
+
+2.void ntyShutdownClient(void);
+参数：NULL
+返回值：NULL
+
+类型定义：
+typedef unsigned char U8;
+typedef unsigned short U16;
+typedef unsigned int U32;
+typedef long long DEVID;
+回调函数定义：
+typedef void (*PROXY_CALLBACK_CLINET)(int len);
+typedef void (*PROXY_HANDLE_CLIENT)(DEVID id, int len);
+
+3.回调函数设置，在SDK内部会调用以下函数，在调用ntyStartupClient之前，必须设置这些函数
+void ntySetSendSuccessCallback(PROXY_CALLBACK_CLINET cb);
+void ntySetSendFailedCallback(PROXY_CALLBACK_CLINET cb);
+void ntySetProxyCallback(PROXY_HANDLE_CLIENT cb);
+void ntySetBindResult(PROXY_CALLBACK_CLINET cb);
+void ntySetUnBindResult(PROXY_CALLBACK_CLINET cb);
+void ntySetProxyDisconnect(PROXY_CALLBACK_CLINET cb);
+void ntySetProxyReconnect(PROXY_CALLBACK_CLINET cb);
+
+
+4.U8* ntyGetRecvBuffer(void);
+描述：获取RecvBuffer的数据
+参数：NULL
+返回值：RecvBuffer数据
+
+例程 1.0：
+ntySetProxyCallback(ntyUserRecvCb);
+
+void ntyUserRecvCb(DEVID devid, int len) {
+	int length = ntyGetRecvBufferSize();
+	U8 *buffer = ntyGetRecvBuffer();
+	//此处 len 等于 length 
+	ntydbg(" devid:%lld, len:%d, %s ", devid, len, buffer);
+}
+
+
+5.void ntySetDevId(DEVID id);
+描述：设置当前用户的ID
+参数：DEVID
+返回值：NULL
+
+6.int ntyGetRecvBufferSize(void);
+描述：获取Recv数据长度
+参数：NULL
+返回值：Recv长度
+细节：参看例程1.0
+
+
+7.void ntyReleaseNetwork(void);
+描述：释放网络的Socket，并会发生重连，此接口不建议使用，使用ntyShutdownClient代替
+参数：NULL
+返回值：NULL
+
+8.int ntyGetNetworkStatus(void);
+描述：获取网络连接状态
+参数：NULL
+返回值：0 网络连接正常，-1 网络已经断开连接
+
+9.void ntyBindClient(DEVID did);
+描述：当前User绑定Device ，
+参数：[in]此处传入的是DeviceID，
+返回值：NULL
+细节：绑定的结果参数会在ntySetBindResult回调函数中返回结果
+ntySetBindResult回调函数接收参数值 
+0：代表成功，1：代表 UserId不存在，2：代表DeviceId不存在，3：代表UserId与DeviceId已经绑定过了
+4：设备尚未激活
+
+10.void ntyUnBindClient(DEVID did);
+描述：当前User解绑Device ，
+参数：[in]此处传入的是DeviceID，
+返回值：NULL
+细节：返回结果在ntySetUnBindResult回调函数中返回
+0：代表解绑成功，1：代表UserId与DeviceId的关系不存在
+
+11.DEVID* ntyGetFriendsList(int *Count);
+描述：获取当前用户绑定的DeviceIdList，此函数在ntyStartupClient以后使用
+参数：[out] 用户个数
+返回值：返回DeviceIdList，通过ntyReleaseFriendsList
+细节：在ntyStartupClient成功调用后，执行ntyGetFriendsList即可获取DeviceIdList
+
+12.void ntyReleaseFriendsList(DEVID **list);
+描述：释放FriendsList
+参数:[in/out] 通过ntyGetFriendsList获取的返回值，通过此函数释放
+返回值：NULL
+
+
+13.int ntySendDataPacket(DEVID toId, U8 *data, int length);
+描述：发送数据给Device
+参数：	[in]@toId：Device Id
+	[in]@data：发送数据
+	[in]@length：data数据的长度
+返回值：发送的数据长度
+
+14.int ntySendMassDataPacket(U8 *data, int length);
+描述：发送数据给绑定的所有设备
+参数：	
+	[in]@data：发送数据
+	[in]@length：data数据的长度
+返回值：发送的数据长度

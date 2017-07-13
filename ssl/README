@@ -1,0 +1,13 @@
+This directory contains modified crypto code from OpenSSL
+1.0.0.beta5.  Please see the OpenSSL license from that release in the
+OPENSSL-LICENSE which will apply if this code is selected.
+
+
+Note: It is generally a better idea to link with the latest OpenSSL
+library rather than rely on this internal support, as the latest
+OpenSSL code may contain important security or other fixes that may
+not have been incorporated into this snapshot.  Small device vendors,
+however, have requested a stripped down version of the OpenSSL
+cryptography code in order to shrink their memory footprint and this
+feature provides such support.
+
